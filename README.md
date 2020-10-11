@@ -82,3 +82,9 @@ When the machine is not able to make change with the money in the machine for an
 display EXACT CHANGE ONLY instead of INSERT COIN.
 
 **Description and idea from:** https://github.com/guyroyse/vending-machine-kata
+
+Coin | Weight in g | Diameter in mm | Value in cents
+:--- | ---: | ---: | ---:
+Nickel | 5.000 | 21.21 | 5
+Dime | 2.268 | 17.91 | 10
+Querter | 5.670 | 24.26 | 25
