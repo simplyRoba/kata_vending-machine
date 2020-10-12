@@ -14,8 +14,24 @@ class VendingMachineTest {
     private val vendingMachine = VendingMachine()
 
     @Nested
-    inner class AcceptCoins {
+    inner class DisplayTests {
+        @Test
+        fun `displays INSERT COIN when no coin is inserted`() {
+            assertThat(vendingMachine.display()).contains(VendingMachine.INSERT_COIN)
+        }
 
+        @Test
+        fun `should show current amount`() {
+            vendingMachine.insertObject(NICKEL.toInsertionObject())
+
+            val display = vendingMachine.display()
+            assertThat(display).contains(VendingMachine.CURRENT_AMOUNT)
+            assertThat(display).contains("0.05")
+        }
+    }
+
+    @Nested
+    inner class AcceptCoins {
         @Test
         fun `should accept a valid coin`() {
             vendingMachine.insertObject(NICKEL.toInsertionObject())
@@ -36,6 +52,17 @@ class VendingMachineTest {
                 (NICKEL.value.multiply(3.toBigDecimal()))
                         + (DIME.value.multiply(2.toBigDecimal()))
                         + (QUARTER.value))
+        }
+
+        @Test
+        fun `should return invalid coins`() {
+            val insertedObject1 = InsertionObject(200f, .22f)
+            val insertedObject2 = InsertionObject(.444f, 583f)
+            vendingMachine.insertObject(insertedObject1)
+            vendingMachine.insertObject(insertedObject2)
+
+            assertThat(vendingMachine.objectsInCoinReturn()).containsExactly(insertedObject1, insertedObject2)
+            assertThat(vendingMachine.currentAmount()).isEqualTo(BigDecimal.ZERO)
         }
     }
 
