@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.simplyroba.kata</groupId>
-    <artifactId>template_kotlin_kata</artifactId>
+    <artifactId>vending-machine</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>de.simplyroba.kata.template_kotlin_kata</name>
+    <name>de.simplyroba.kata.vending-machine</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
