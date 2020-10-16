@@ -28,6 +28,19 @@ class VendingMachineTest {
             assertThat(display).contains(VendingMachine.CURRENT_AMOUNT)
             assertThat(display).contains("0.05")
         }
+
+        @Test
+        fun `should reset the display after a successful buy`() {
+            vendingMachine.insertObject(NICKEL.toInsertionObject())
+            vendingMachine.insertObject(DIME.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+
+            vendingMachine.buyProductAtLocation(Product.CANDY.location)
+
+            assertThat(vendingMachine.display()).contains(VendingMachine.THANK_YOU)
+            assertThat(vendingMachine.display()).contains(VendingMachine.INSERT_COIN)
+        }
     }
 
     @Nested
@@ -62,6 +75,21 @@ class VendingMachineTest {
             vendingMachine.insertObject(insertedObject2)
 
             assertThat(vendingMachine.objectsInCoinReturn()).containsExactly(insertedObject1, insertedObject2)
+            assertThat(vendingMachine.currentAmount()).isEqualTo(BigDecimal.ZERO)
+        }
+    }
+
+    @Nested
+    inner class SelectProduct {
+        @Test
+        fun `should reset amount after successful buy with exact amount`() {
+            vendingMachine.insertObject(NICKEL.toInsertionObject())
+            vendingMachine.insertObject(DIME.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+
+            vendingMachine.buyProductAtLocation(Product.CANDY.location)
+
             assertThat(vendingMachine.currentAmount()).isEqualTo(BigDecimal.ZERO)
         }
     }
