@@ -1,5 +1,6 @@
 package de.simplyroba.kata
 
+import de.simplyroba.kata.VendingMachine.LastAction.*
 import java.math.BigDecimal
 import kotlin.text.StringBuilder
 
@@ -10,8 +11,11 @@ class VendingMachine {
 
     private val currentInsertedCoins: MutableList<Coin> = ArrayList()
     private val coinReturn: MutableList<InsertionObject> = ArrayList()
+    private var lastAction: LastAction = NoAction
 
     companion object {
+        const val PRICE = "PRICE"
+        const val THANK_YOU = "THANK YOU"
         const val INSERT_COIN = "INSERT COIN"
         const val CURRENT_AMOUNT = "CURRENT AMOUNT"
         const val COIN_RETURN = "COIN RETURN"
@@ -36,26 +40,58 @@ class VendingMachine {
     fun display(): String {
         val sb = StringBuilder()
 
-        if (currentInsertedCoins.isEmpty()) {
-            sb.appendLine(INSERT_COIN)
-        } else {
-            sb
-                .append(CURRENT_AMOUNT)
-                .append(": ")
-                .append(currentAmount())
-                .appendLine(" $")
+        when (val lastAction = lastAction) {
+            SuccessfulBuy -> sb.appendLine(THANK_YOU)
+            is CurrentAmountNotEnough -> {
+                sb.appendLine(INSERT_COIN)
+                sb.append(PRICE)
+                sb.appendLine(lastAction.neededAmount.toString())
+            }
+            else -> {
+                if (currentInsertedCoins.isEmpty()) {
+                    sb.appendLine(INSERT_COIN)
+                } else {
+                    sb
+                            .append(CURRENT_AMOUNT)
+                            .append(": ")
+                            .append(currentAmount())
+                            .appendLine(" $")
+                }
+
+                if (coinReturn.isNotEmpty()) {
+                    sb
+                            .append(COIN_RETURN)
+                            .append(": ")
+                            .append(coinReturn)
+                            .appendLine()
+                    coinReturn.clear()
+                }
+            }
         }
 
-        if (coinReturn.isNotEmpty()) {
-            sb
-                .append(COIN_RETURN)
-                .append(": ")
-                .append(coinReturn)
-                .appendLine()
-            coinReturn.clear()
-        }
+        lastAction.reset()
 
         return sb.toString();
+    }
+
+    fun buyProductAtLocation(location: String) {
+        val product = Product.getProductByLocation(location)
+        if (currentAmount() >= product.price) {
+            currentInsertedCoins.clear()
+            lastAction = SuccessfulBuy
+        } else {
+            lastAction = CurrentAmountNotEnough(product.price)
+        }
+    }
+
+    sealed class LastAction {
+        object NoAction: LastAction()
+        object SuccessfulBuy: LastAction()
+        data class CurrentAmountNotEnough(val neededAmount: BigDecimal): LastAction()
+    }
+
+    private fun LastAction.reset() {
+        lastAction = NoAction
     }
 }
 
