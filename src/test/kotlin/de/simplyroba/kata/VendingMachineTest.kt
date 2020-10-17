@@ -108,6 +108,22 @@ class VendingMachineTest {
         }
     }
 
+    @Nested
+    inner class MakeChange {
+        @Test
+        fun `should return coins that are above product price`() {
+            vendingMachine.insertObject(DIME.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+            vendingMachine.insertObject(QUARTER.toInsertionObject())
+
+            vendingMachine.buyProductAtLocation(COLA.location)
+
+            assertThat(vendingMachine.objectsInCoinReturn()).containsExactly(DIME.toInsertionObject())
+        }
+    }
+
     private fun Coin.toInsertionObject(): InsertionObject {
         return InsertionObject(weightInGram, diameterInMillimeter)
     }

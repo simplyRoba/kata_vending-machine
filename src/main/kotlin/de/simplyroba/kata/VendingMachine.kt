@@ -1,5 +1,6 @@
 package de.simplyroba.kata
 
+import de.simplyroba.kata.Coin.*
 import de.simplyroba.kata.VendingMachine.LastAction.*
 import java.math.BigDecimal
 import kotlin.text.StringBuilder
@@ -22,8 +23,9 @@ class VendingMachine {
     }
 
     fun insertObject(insertedObject: InsertionObject) {
-        if (insertedObject.isValidCoin()) {
-            currentInsertedCoins.add(insertedObject.toCoin())
+        val coin = insertedObject.toCoin()
+        if (coin != null) {
+            currentInsertedCoins.add(coin)
         } else {
             coinReturn.add(insertedObject)
         }
@@ -43,27 +45,31 @@ class VendingMachine {
         when (val lastAction = lastAction) {
             SuccessfulBuy -> sb.appendLine(THANK_YOU)
             is CurrentAmountNotEnough -> {
-                sb.appendLine(INSERT_COIN)
-                sb.append(PRICE)
-                sb.appendLine(lastAction.neededAmount.toString())
+                sb
+                    .appendLine(INSERT_COIN)
+                    .append(PRICE).append(": ")
+                    .appendLine(lastAction.neededAmount.toString())
             }
             else -> {
                 if (currentInsertedCoins.isEmpty()) {
                     sb.appendLine(INSERT_COIN)
                 } else {
                     sb
-                            .append(CURRENT_AMOUNT)
-                            .append(": ")
-                            .append(currentAmount())
-                            .appendLine(" $")
+                        .append(CURRENT_AMOUNT).append(": ")
+                        .append(currentAmount())
+                        .appendLine(" $")
                 }
 
                 if (coinReturn.isNotEmpty()) {
                     sb
-                            .append(COIN_RETURN)
-                            .append(": ")
-                            .append(coinReturn)
-                            .appendLine()
+                        .append(COIN_RETURN).append(": ")
+                        coinReturn.forEach { it ->
+                            when (val coin = it.toCoin()) {
+                                NICKEL, DIME, QUARTER -> sb.append(coin)
+                                null -> sb.append(it.toString())
+                            }
+                        }
+                    sb.appendLine()
                     coinReturn.clear()
                 }
             }
@@ -99,23 +105,15 @@ data class InsertionObject(
     private val weightInGram: Float,
     private val diameterInMillimeter: Float) {
 
-    fun toCoin(): Coin {
-        try {
-            return Coin.getCoinByWeightAndDiameter(weightInGram, diameterInMillimeter)
+    fun toCoin(): Coin? {
+        return try {
+            Coin.getCoinByWeightAndDiameter(weightInGram, diameterInMillimeter)
         } catch (ex: NoSuchElementException) {
-            throw IllegalStateException("No valid coin with this dimensions found.", ex)
+            null
         }
     }
 
     fun getValue(): BigDecimal {
-        return try {
-            toCoin().value
-        } catch (ex: IllegalStateException) {
-            BigDecimal.ZERO
-        }
-    }
-
-    fun isValidCoin(): Boolean {
-        return getValue() > BigDecimal.ZERO
+        return toCoin()?.value ?: BigDecimal.ZERO
     }
 }
