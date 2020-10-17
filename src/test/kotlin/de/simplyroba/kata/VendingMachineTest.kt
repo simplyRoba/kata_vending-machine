@@ -2,6 +2,8 @@ package de.simplyroba.kata
 
 import com.google.common.truth.Truth.assertThat
 import de.simplyroba.kata.Coin.*
+import de.simplyroba.kata.Product.CANDY
+import de.simplyroba.kata.Product.COLA
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -36,10 +38,22 @@ class VendingMachineTest {
             vendingMachine.insertObject(QUARTER.toInsertionObject())
             vendingMachine.insertObject(QUARTER.toInsertionObject())
 
-            vendingMachine.buyProductAtLocation(Product.CANDY.location)
+            vendingMachine.buyProductAtLocation(CANDY.location)
 
             assertThat(vendingMachine.display()).contains(VendingMachine.THANK_YOU)
             assertThat(vendingMachine.display()).contains(VendingMachine.INSERT_COIN)
+        }
+
+        @Test
+        fun `should display price if not enough money was inserted for selected product`() {
+            vendingMachine.insertObject(NICKEL.toInsertionObject())
+            vendingMachine.insertObject(DIME.toInsertionObject())
+
+            vendingMachine.buyProductAtLocation(COLA.location)
+
+            val display = vendingMachine.display()
+            assertThat(display).contains(VendingMachine.PRICE)
+            assertThat(display).contains(COLA.price.toString())
         }
     }
 
@@ -88,7 +102,7 @@ class VendingMachineTest {
             vendingMachine.insertObject(QUARTER.toInsertionObject())
             vendingMachine.insertObject(QUARTER.toInsertionObject())
 
-            vendingMachine.buyProductAtLocation(Product.CANDY.location)
+            vendingMachine.buyProductAtLocation(CANDY.location)
 
             assertThat(vendingMachine.currentAmount()).isEqualTo(BigDecimal.ZERO)
         }
