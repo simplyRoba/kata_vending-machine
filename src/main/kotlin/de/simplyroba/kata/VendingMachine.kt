@@ -75,19 +75,38 @@ class VendingMachine {
             }
         }
 
-        lastAction.reset()
+        resetActions()
 
-        return sb.toString();
+        return sb.toString()
     }
 
     fun buyProductAtLocation(location: String) {
         val product = Product.getProductByLocation(location)
-        if (currentAmount() >= product.price) {
-            currentInsertedCoins.clear()
-            lastAction = SuccessfulBuy
-        } else {
-            lastAction = CurrentAmountNotEnough(product.price)
+        when {
+            currentAmount() < product.price -> {
+                lastAction = CurrentAmountNotEnough(product.price)
+            }
+            currentAmount() == product.price -> {
+                currentInsertedCoins.clear()
+                lastAction = SuccessfulBuy
+            }
+            currentAmount() > product.price -> {
+                val difference = currentAmount().minus(product.price)
+                val coinsToReturn: List<Coin> = calculateCoinsToReturn(difference)
+                coinReturn.addAll(coinsToReturn.map { coin -> coin.toInsertionObject() })
+                currentInsertedCoins.clear()
+                lastAction = SuccessfulBuy
+            }
         }
+    }
+
+    private fun calculateCoinsToReturn(difference: BigDecimal): List<Coin> {
+        // fill from biggest to smallest
+        // until difference is to small for current value or
+        // no more coin of current value is inserted
+        // the got next to the smaller value
+        // until difference is zero
+        TODO("Not yet implemented")
     }
 
     sealed class LastAction {
@@ -96,24 +115,8 @@ class VendingMachine {
         data class CurrentAmountNotEnough(val neededAmount: BigDecimal): LastAction()
     }
 
-    private fun LastAction.reset() {
+    private fun resetActions() {
         lastAction = NoAction
     }
 }
 
-data class InsertionObject(
-    private val weightInGram: Float,
-    private val diameterInMillimeter: Float) {
-
-    fun toCoin(): Coin? {
-        return try {
-            Coin.getCoinByWeightAndDiameter(weightInGram, diameterInMillimeter)
-        } catch (ex: NoSuchElementException) {
-            null
-        }
-    }
-
-    fun getValue(): BigDecimal {
-        return toCoin()?.value ?: BigDecimal.ZERO
-    }
-}

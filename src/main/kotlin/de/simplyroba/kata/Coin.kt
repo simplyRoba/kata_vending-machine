@@ -15,11 +15,16 @@ enum class Coin(
     DIME(2.268f, 17.91f, BigDecimal("0.1")),
     QUARTER(5.67f, 24.26f, BigDecimal("0.25"));
 
+
+    fun toInsertionObject(): InsertionObject {
+        return InsertionObject(weightInGram, diameterInMillimeter)
+    }
+
     companion object {
-        fun getCoinByWeightAndDiameter(weightInGram: Float, diameterInMillimeter: Float): Coin {
+        fun getCoinByWeightAndDiameter(weightInGram: Float, diameterInMillimeter: Float): Coin? {
             return values()
-                .filter { coin -> coin.weightInGram.equals(weightInGram) }
-                .first { coin -> coin.diameterInMillimeter.equals(diameterInMillimeter) }
+                    .filter { coin -> coin.weightInGram.equals(weightInGram) }
+                    .firstOrNull { coin -> coin.diameterInMillimeter.equals(diameterInMillimeter) }
         }
     }
 }

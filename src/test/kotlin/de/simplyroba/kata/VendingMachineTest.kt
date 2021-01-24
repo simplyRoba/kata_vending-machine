@@ -123,8 +123,4 @@ class VendingMachineTest {
             assertThat(vendingMachine.objectsInCoinReturn()).containsExactly(DIME.toInsertionObject())
         }
     }
-
-    private fun Coin.toInsertionObject(): InsertionObject {
-        return InsertionObject(weightInGram, diameterInMillimeter)
-    }
 }
